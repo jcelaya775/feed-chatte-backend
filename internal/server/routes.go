@@ -2,6 +2,9 @@ package server
 
 import (
 	"encoding/json"
+	db "feed-chatte-backend/internal/database"
+	"feed-chatte-backend/internal/database/models"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -24,14 +27,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Get("/", s.HelloWorldHandler)
 
-	r.Get("/health", s.healthHandler)
+	// r.Get("/health", s.healthHandler)
 
 	return r
 }
 
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
+	users, _ := db.FindAll[models.User](s.db, "SELECT * FROM users")
+	b, _ := json.Marshal(users)
+	fmt.Printf("users:\n%v\n", string(b))
+
+	resp := make(map[string][]models.User)
+	resp["message"] = users
 
 	jsonResp, err := json.Marshal(resp)
 	if err != nil {
@@ -41,7 +48,7 @@ func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(jsonResp)
 }
 
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	jsonResp, _ := json.Marshal(s.db.Health())
-	_, _ = w.Write(jsonResp)
-}
+// func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
+// 	jsonResp, _ := json.Marshal(s.db.Health())
+// 	_, _ = w.Write(jsonResp)
+// }

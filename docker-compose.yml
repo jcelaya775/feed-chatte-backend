@@ -1,5 +1,5 @@
 services:
-  mysql_bp:
+  db:
     image: mysql:latest
     restart: unless-stopped
     environment:
@@ -10,7 +10,7 @@ services:
     ports:
       - "${BLUEPRINT_DB_PORT}:3306"
     volumes:
-      - mysql_volume_bp:/var/lib/mysql
+      - db_data:/var/lib/mysql
 
 volumes:
-  mysql_volume_bp:
+  db_data:
