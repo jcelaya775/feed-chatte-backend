@@ -1,6 +1,6 @@
 # Project feed-chatte-backend
 
-One Paragraph of project description goes here
+Backend for [feed-chatte](https://github.com/jcelaya775/feed-chatte).
 
 ## Getting Started
 
