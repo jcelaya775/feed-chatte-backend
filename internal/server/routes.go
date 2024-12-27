@@ -27,7 +27,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Get("/", s.HelloWorldHandler)
 
-	// r.Get("/health", s.healthHandler)
+	r.Get("/health", s.healthHandler)
 
 	return r
 }
@@ -48,7 +48,7 @@ func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(jsonResp)
 }
 
-// func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-// 	jsonResp, _ := json.Marshal(s.db.Health())
-// 	_, _ = w.Write(jsonResp)
-// }
+func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
+	jsonResp, _ := json.Marshal(s.DBHealth())
+	_, _ = w.Write(jsonResp)
+}
