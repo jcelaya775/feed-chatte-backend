@@ -111,9 +111,10 @@ func (s *Server) PostUsers(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) GetEvents(w http.ResponseWriter, r *http.Request) {
 	query := "SELECT * FROM events ORDER BY time ASC"
-	if nameQueryParam := r.URL.Query().Get("name"); nameQueryParam != "" {
-		query = fmt.Sprintf("SELECT * FROM events ORDER BY time ASC", nameQueryParam)
+	if todayQueryParam := r.URL.Query().Get("today"); todayQueryParam == "true" {
+		query = "SELECT * FROM events WHERE DATE(time) = CURDATE() ORDER BY time ASC"
 	}
+	fmt.Printf("Query: %s\n", query)
 
 	events, err := db.FindAll[models.Event](s.db, query)
 	if err != nil {
