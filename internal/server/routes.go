@@ -57,12 +57,16 @@ func (s *Server) GetUsers(w http.ResponseWriter, r *http.Request) {
 
 	users, err := db.FindAll[models.User](s.db, query)
 	if err != nil {
-		log.Fatalf("Error fetching users. Err: %v", err)
+		log.Println("Error fetching users. Err: %v", err)
+		http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
+		return
 	}
 
 	jsonResp, err := json.Marshal(users)
 	if err != nil {
-		log.Fatalf("Error handling JSON marshal. Err: %v", err)
+		log.Println("Error handling JSON marshal. Err: %v", err)
+		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
+		return
 	}
 	_, _ = w.Write(jsonResp)
 }
@@ -113,12 +117,16 @@ func (s *Server) GetEvents(w http.ResponseWriter, r *http.Request) {
 
 	events, err := db.FindAll[models.Event](s.db, query)
 	if err != nil {
-		log.Fatalf("Error fetching events. Err: %v", err)
+		log.Println("Error fetching events. Err: %v", err)
+		http.Error(w, "Failed to fetch events", http.StatusInternalServerError)
+		return
 	}
 
 	jsonResp, err := json.Marshal(events)
 	if err != nil {
-		log.Fatalf("Error handling JSON marshal. Err: %v", err)
+		log.Println("Error handling JSON marshal. Err: %v", err)
+		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
+		return
 	}
 	_, _ = w.Write(jsonResp)
 }
