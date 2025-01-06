@@ -162,6 +162,10 @@ func (s *Server) PostEvents(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to decode reqBody reqBody", http.StatusBadRequest)
 		return
 	}
+	if len(users) == 0 {
+		http.Error(w, "No users exist, yet", http.StatusBadRequest)
+		return
+	}
 	userId := users[0].Id
 
 	messageTemplate := fmt.Sprintf(messages[rand.Intn(len(messages))], reqBody.Name)
@@ -207,14 +211,14 @@ func (s *Server) DeleteEvents(w http.ResponseWriter, r *http.Request) {
 
 var chatteMessages = map[string]string{
 	"starving":          "Feed me, I'm starving!!! 😱🍔",
-	"hungry":            "Hey, feed me! >:|",
+	"hungry":            "I'm hungry now.",
 	"slightlySatisfied": "My belly is satisfied, for now...",
 	"satisfied":         "My belly is satisfied",
 	"full":              "Ah! That was a good meal! 😋",
 }
 
 func (s *Server) GetChatteMessage(w http.ResponseWriter, r *http.Request) {
-	events, err := db.FindAll[models.Event](s.db, fmt.Sprintf("SELECT * FROM events ORDER BY time DESC LIMIT 1"))
+	events, err := db.FindAll[models.Event](s.db, fmt.Sprintf("SELECT * FROM events WHERE DATE(time) = CURDATE() ORDER BY time DESC LIMIT 1"))
 	if err != nil {
 		log.Printf("Error fetching events. Err: %v", err)
 		http.Error(w, "Failed to fetch events", http.StatusInternalServerError)
@@ -226,7 +230,13 @@ func (s *Server) GetChatteMessage(w http.ResponseWriter, r *http.Request) {
 		Status  string `json:"status"`
 	}
 
-	switch timeLastFed := events[0].Time; {
+	var timeLastFed time.Time
+	if len(events) == 0 {
+		timeLastFed = time.Now().Add(6 * time.Hour)
+	} else {
+		timeLastFed = events[0].Time
+	}
+	switch {
 	case timeLastFed.Before(time.Now().Add(2 * time.Hour)):
 		response.Message = chatteMessages["full"]
 		response.Status = "full"
