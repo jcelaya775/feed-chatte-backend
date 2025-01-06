@@ -49,7 +49,7 @@ func FindAll[T any](db *sql.DB, query string) ([]T, error) {
 }
 
 func getTable[T any](rows *sql.Rows) (out []T) {
-	var table []T
+	table := make([]T, 0)
 	for rows.Next() {
 		var data T
 		s := reflect.ValueOf(&data).Elem()
