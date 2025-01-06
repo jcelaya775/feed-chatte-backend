@@ -42,6 +42,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Post("/events", s.PostEvents)
 
+	r.Delete("/events/{id}", s.DeleteEvents)
+
 	r.Get("/chatte-message", s.GetChatteMessage)
 
 	r.Get("/health", s.GetHealth)
@@ -179,6 +181,28 @@ func (s *Server) PostEvents(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	_, _ = w.Write(jsonResp)
 
+}
+
+func (s *Server) DeleteEvents(w http.ResponseWriter, r *http.Request) {
+	eventId := chi.URLParam(r, "id")
+	events, err := db.FindAll[models.Event](s.db, fmt.Sprintf("SELECT * FROM events WHERE id = '%s'", eventId))
+	if err != nil {
+		log.Printf("Error fetching event. Err: %v", err)
+		http.Error(w, "Failed to fetch event", http.StatusInternalServerError)
+		return
+	}
+	if len(events) == 0 {
+		http.Error(w, "Event does not exist", http.StatusNotFound)
+		return
+	}
+
+	if _, err = s.db.Exec(fmt.Sprintf("DELETE FROM events WHERE id = '%s'", eventId)); err != nil {
+		log.Printf("Error deleting event. Err: %v", err)
+		http.Error(w, "Failed to delete event", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
 }
 
 var chatteMessages = map[string]string{
